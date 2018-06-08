@@ -1,0 +1,33 @@
+{
+	"name": "node-dbjs",
+	"version": "1.0.0",
+	"description": "Simple node module for simple database",
+	"main": "./dist/index.js",
+	"scripts": {
+		"test": "echo \"No test set for the moment\" && exit 1",
+		"start": "node ./dist/index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jonathan-richer/node-db.git"
+	},
+	"keywords": [
+		"javascript",
+		"node",
+		"database"
+	],
+	"author": "Jonathan Richer dit Laflèche",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/jonathan-richer/node-db/issues"
+	},
+	"homepage": "https://github.com/jonathan-richer/node-db#readme",
+	"dependencies": {
+		"fs": "0.0.1-security",
+		"path": "^0.12.7"
+	},
+	"devDependencies": {
+		"@types/node": "^10.3.2",
+		"typescript": "^2.9.1"
+	}
+}

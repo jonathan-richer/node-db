@@ -1,0 +1,6 @@
+node_ modules
+package-lock.json
+dist/databases
+src
+.gitignore
+tsconfig.json
