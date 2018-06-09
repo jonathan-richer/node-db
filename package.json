@@ -1,6 +1,6 @@
 {
 	"name": "node-dbjs",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Simple node module for simple database",
 	"main": "./dist/index.js",
 	"categories": [
