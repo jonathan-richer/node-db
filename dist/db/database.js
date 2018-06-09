@@ -39,7 +39,6 @@ var Database = (function () {
         this.dbPath = db_path;
     }
     Database.prototype.insert = function (data) {
-        var _this = this;
         if (data.length != this.rows.length)
             throw new Error("The parameter must be the same length as the rows");
         for (var i = 0; i < this.rows.length; i++) {
@@ -52,26 +51,20 @@ var Database = (function () {
         for (var i = 0; i < this.rows.length; i++) {
             obj[this.rows[i].name] = data[i] || this.rows[i]["default"];
         }
-        fs.readFile(this.dbPath, function (err, data) {
-            if (err)
-                throw new Error(err.message);
-            else {
-                var json = JSON.parse(data.toString());
-                for (var i = 0; i < _this.autoIncrement.length; i++) {
-                    var prop = _this.autoIncrement[i].name;
-                    var last = void 0;
-                    try {
-                        last = json[json.length - 1][prop];
-                    }
-                    catch (e) {
-                        last = null;
-                    }
-                    obj[prop] = (last !== null ? ++last : 0);
-                }
-                json.push(obj);
-                fs.writeFileSync(_this.dbPath, JSON.stringify(json), { encoding: 'utf-8' });
+        var json = JSON.parse(fs.readFileSync(this.dbPath).toString());
+        for (var i = 0; i < this.autoIncrement.length; i++) {
+            var prop = this.autoIncrement[i].name;
+            var last = void 0;
+            try {
+                last = json[json.length - 1][prop];
             }
-        });
+            catch (e) {
+                last = null;
+            }
+            obj[prop] = (typeof last === "number") ? last + 1 : 0;
+        }
+        json.push(obj);
+        fs.writeFileSync(this.dbPath, JSON.stringify(json), { encoding: 'utf-8' });
     };
     Database.prototype.select = function (rows, value, comparisonFlag) {
         if (rows !== "*" && (typeof comparisonFlag === 'undefined' || typeof value === "undefined"))

@@ -3,9 +3,16 @@ const rows = [
 	{
 		name: "name",
 		type: "string"
+	},
+	{
+		name: "id",
+		type: "number",
+		options: {
+			autoIncrement: true
+		}
 	}
-]
+];
 const members = dbjs.connect("members", rows, __dirname);
 
-members.insert(["John"]);
-console.log(members.select("*"));
+members.insert([(Math.floor(Math.random() * 100)).toString()]);
+// console.log(members.select("*"));

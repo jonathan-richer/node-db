@@ -24,7 +24,8 @@ export default class Database {
 		}
 
 		const db_path = path.join(dirname, `/databases/${name}.json`);
-		{
+
+		{ // Create the missing files.
 			const ex = fs.existsSync(db_path);
 			if (!ex) {
 				const database = path.join(dirname, "databases");
@@ -50,33 +51,27 @@ export default class Database {
 			}
 		}
 
-		let obj = {};
+		let obj: any = {};
 		for (let i = 0; i < this.rows.length; i++) {
 			// @ts-ignore
 			obj[this.rows[i].name] = data[i] || this.rows[i].default;
 		}
 
-		fs.readFile(this.dbPath, (err, data) => {
-			if (err)
-				throw new Error(err.message);
-			else {
-				const json: Object[] = JSON.parse(data.toString());
-				for (let i = 0; i < this.autoIncrement.length; i++) {
-					const prop: string = this.autoIncrement[i].name;
-					let last: number | null;
-					try {
-						// @ts-ignore
-						last = json[json.length - 1][prop];
-					} catch (e) {
-						last = null;
-					}
-					// @ts-ignore
-					obj[prop] = (last !== null ? ++last : 0);
-				}
-				json.push(obj);
-				fs.writeFileSync(this.dbPath, JSON.stringify(json), { encoding: 'utf-8' });
+		const json: any = JSON.parse(fs.readFileSync(this.dbPath).toString());
+
+		for (let i = 0; i < this.autoIncrement.length; i++) {
+			const prop = this.autoIncrement[i].name
+			let last: number | null;
+			try {
+				last = json[json.length - 1][prop];
+			} catch (e) {
+				last = null;
 			}
-		});
+			// @ts-ignore
+			obj[prop] = (typeof last === "number") ? last + 1 : 0;
+		}
+		json.push(obj);
+		fs.writeFileSync(this.dbPath, JSON.stringify(json), { encoding: 'utf-8' });
 	}
 
 	select(rows: "*" | string, value?: string | number | boolean, comparisonFlag?: "eq" | "neq" | "gt" | "lt" | "gte" | "lte") {

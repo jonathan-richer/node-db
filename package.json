@@ -3,9 +3,13 @@
 	"version": "1.0.0",
 	"description": "Simple node module for simple database",
 	"main": "./dist/index.js",
+	"categories": [
+		"Other"
+	],
+	"types": "./dist/types/index.d.ts",
 	"scripts": {
-		"test": "node ./test/test.js",
-		"start": "node ./dist/index.js"
+		"test": "tsc && node ./test/test.js",
+		"start": "node ./test/test.js"
 	},
 	"repository": {
 		"type": "git",
