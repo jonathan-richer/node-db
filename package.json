@@ -4,7 +4,7 @@
 	"description": "Simple node module for simple database",
 	"main": "./dist/index.js",
 	"scripts": {
-		"test": "echo \"No test set for the moment\" && exit 1",
+		"test": "node ./test/test.js",
 		"start": "node ./dist/index.js"
 	},
 	"repository": {

@@ -10,7 +10,7 @@ exports.__esModule = true;
 var fs = __importStar(require("fs"));
 var path = __importStar(require("path"));
 var Database = (function () {
-    function Database(name, rows) {
+    function Database(name, rows, dirname) {
         var autoIncrement = [];
         for (var i = 0; i < rows.length; i++) {
             if (rows[i]["default"] && typeof rows[i]["default"] !== rows[i].type)
@@ -23,14 +23,17 @@ var Database = (function () {
                 }
             }
         }
-        var db_path = path.join(__dirname, "../databases/" + name + ".json");
-        fs.exists(db_path, function (res) {
-            if (!res) {
-                if (!fs.existsSync(path.dirname(db_path)))
-                    fs.mkdirSync(path.dirname(db_path));
-                fs.writeFileSync(db_path, "[]", { encoding: "utf-8" });
+        var db_path = path.join(dirname, "/databases/" + name + ".json");
+        {
+            var ex = fs.existsSync(db_path);
+            if (!ex) {
+                var database = path.join(dirname, "databases");
+                var exd = fs.existsSync(database);
+                if (!exd)
+                    fs.mkdirSync(database);
+                fs.writeFileSync(db_path, "[]", { encoding: 'utf-8' });
             }
-        });
+        }
         this.rows = rows;
         this.autoIncrement = autoIncrement;
         this.dbPath = db_path;
@@ -69,6 +72,62 @@ var Database = (function () {
                 fs.writeFileSync(_this.dbPath, JSON.stringify(json), { encoding: 'utf-8' });
             }
         });
+    };
+    Database.prototype.select = function (rows, value, comparisonFlag) {
+        if (rows !== "*" && (typeof comparisonFlag === 'undefined' || typeof value === "undefined"))
+            throw new Error("If you don't select everything, you must add a value to search and a flag");
+        var json = JSON.parse(fs.readFileSync(this.dbPath).toString());
+        if (rows === "*")
+            return json;
+        else if (typeof value !== "undefined") {
+            var rtn = [];
+            switch (comparisonFlag) {
+                case "eq":
+                    for (var i = 0; i < json.length; i++) {
+                        if (json[i][rows] === value)
+                            rtn.push(json[i]);
+                    }
+                    return rtn;
+                case "neq":
+                    for (var i = 0; i < json.length; i++) {
+                        if (json[i][rows] !== value)
+                            rtn.push(json[i]);
+                    }
+                    return rtn;
+                case "lt":
+                    if (typeof value !== "number")
+                        throw new TypeError("You can only perform \"less than\" operator on numbers datatypes");
+                    for (var i = 0; i < json.length; i++) {
+                        if (json[i][rows] < value)
+                            rtn.push(json[i]);
+                    }
+                    return rtn;
+                case "lte":
+                    if (typeof value !== "number")
+                        throw new TypeError("You can only perform \"less than or equal\" operator on numbers datatypes");
+                    for (var i = 0; i < json.length; i++) {
+                        if (json[i][rows] <= value)
+                            rtn.push(json[i]);
+                    }
+                    return rtn;
+                case "gt":
+                    if (typeof value !== "number")
+                        throw new TypeError("You can only perform \"greater than\" operator on numbers datatypes");
+                    for (var i = 0; i < json.length; i++) {
+                        if (json[i][rows] > value)
+                            rtn.push(json[i]);
+                    }
+                    return rtn;
+                case "gte":
+                    if (typeof value !== "number")
+                        throw new TypeError("You can only perform \"greater than or equal\" operator on numbers datatypes");
+                    for (var i = 0; i < json.length; i++) {
+                        if (json[i][rows] >= value)
+                            rtn.push(json[i]);
+                    }
+                    return rtn;
+            }
+        }
     };
     return Database;
 }());

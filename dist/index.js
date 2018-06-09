@@ -4,30 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 var database_1 = __importDefault(require("./db/database"));
-var rows = [
-    {
-        name: "id",
-        type: "number",
-        options: {
-            notnull: true,
-            autoIncrement: true
-        }
-    },
-    {
-        name: "name",
-        type: "string",
-        options: {
-            notnull: true
-        }
-    },
-    {
-        name: "age",
-        type: "number",
-        "default": 0,
-        options: {
-            notnull: true
-        }
-    }
-];
-var db = new database_1["default"]("members", rows);
-db.insert(["Jonathan", 20]);
+exports.connect = function (name, rows, dirname) {
+    return new database_1["default"](name, rows, dirname);
+};

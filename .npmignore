@@ -1,6 +1,7 @@
 node_ modules
 package-lock.json
-dist/databases
+.vscode
 src
 .gitignore
 tsconfig.json
+test

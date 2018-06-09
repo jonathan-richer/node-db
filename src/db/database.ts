@@ -8,7 +8,7 @@ export default class Database {
 	private rows: row[];
 	private autoIncrement: row[];
 
-	constructor(name: string, rows: row[]) {
+	constructor(name: string, rows: row[], dirname: string) {
 		const autoIncrement = [];
 		for (let i = 0; i < rows.length; i++) {
 			if (rows[i].default && typeof rows[i].default !== rows[i].type)
@@ -23,14 +23,17 @@ export default class Database {
 			}
 		}
 
-		const db_path = path.join(__dirname, `../databases/${name}.json`);
-		fs.exists(db_path, res => {
-			if (!res) {
-				if (!fs.existsSync(path.dirname(db_path)))
-					fs.mkdirSync(path.dirname(db_path));
-				fs.writeFileSync(db_path, "[]", { encoding: "utf-8" });
+		const db_path = path.join(dirname, `/databases/${name}.json`);
+		{
+			const ex = fs.existsSync(db_path);
+			if (!ex) {
+				const database = path.join(dirname, "databases");
+				const exd = fs.existsSync(database);
+				if (!exd)
+					fs.mkdirSync(database);
+				fs.writeFileSync(db_path, "[]", { encoding: 'utf-8' });
 			}
-		});
+		}
 
 		this.rows = rows;
 		this.autoIncrement = autoIncrement;
@@ -74,5 +77,67 @@ export default class Database {
 				fs.writeFileSync(this.dbPath, JSON.stringify(json), { encoding: 'utf-8' });
 			}
 		});
+	}
+
+	select(rows: "*" | string, value?: string | number | boolean, comparisonFlag?: "eq" | "neq" | "gt" | "lt" | "gte" | "lte") {
+		if (rows !== "*" && (typeof comparisonFlag === 'undefined' || typeof value === "undefined"))
+			throw new Error("If you don't select everything, you must add a value to search and a flag");
+		const json = JSON.parse(fs.readFileSync(this.dbPath).toString());
+		if (rows === "*")
+			return json;
+		else if (typeof value !== "undefined") {
+			const rtn = [];
+			switch (comparisonFlag) {
+				case "eq":
+					for (let i = 0; i < json.length; i++) {
+						if (json[i][rows] === value)
+							rtn.push(json[i]);
+					}
+					return rtn;
+
+				case "neq":
+					for (let i = 0; i < json.length; i++) {
+						if (json[i][rows] !== value)
+							rtn.push(json[i]);
+					}
+					return rtn;
+
+				case "lt":
+					if (typeof value !== "number")
+						throw new TypeError("You can only perform \"less than\" operator on numbers datatypes")
+					for (let i = 0; i < json.length; i++) {
+						if (json[i][rows] < value)
+							rtn.push(json[i]);
+					}
+					return rtn;
+
+				case "lte":
+					if (typeof value !== "number")
+						throw new TypeError("You can only perform \"less than or equal\" operator on numbers datatypes")
+					for (let i = 0; i < json.length; i++) {
+						if (json[i][rows] <= value)
+							rtn.push(json[i]);
+					}
+					return rtn;
+
+				case "gt":
+					if (typeof value !== "number")
+						throw new TypeError("You can only perform \"greater than\" operator on numbers datatypes")
+					for (let i = 0; i < json.length; i++) {
+						if (json[i][rows] > value)
+							rtn.push(json[i]);
+					}
+					return rtn;
+
+				case "gte":
+					if (typeof value !== "number")
+						throw new TypeError("You can only perform \"greater than or equal\" operator on numbers datatypes")
+					for (let i = 0; i < json.length; i++) {
+						if (json[i][rows] >= value)
+							rtn.push(json[i]);
+					}
+					return rtn;
+			}
+		}
 	}
 }
